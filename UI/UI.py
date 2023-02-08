@@ -23,7 +23,7 @@ class UI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("UI")
-        self.geometry("600x600")
+        self.geometry("1200x600")
         self.resizable(False, False)
         self.button_1 = ttk.Button(self, text="View Candle", command=self.view_candle)
         self.button_1.place(x=50, y=50)
@@ -45,10 +45,17 @@ class UI(tk.Tk):
         self.label_4.place(x=50, y=300)
         self.label_5 = ttk.Label(self, text="View Current Price")
         self.label_5.place(x=50, y=350)
+        self.label_6 = ttk.Label(self, text="Total Balance")
+        self.label_6.place(x=1000, y=50)
+
 
         self.button_3 = ttk.Button(self, text="Exit", command=self.exit)
         self.button_3.place(x=50, y=500)
+        self.button_4 = ttk.Button(self, text="Start Algorithm", command=self.start_algorithm)
+        self.button_4.place(x=1000, y=100)
 
+    def start_algorithm(self):
+        return
 
     def view_candle(self):
         # if figure1 is already open, close it
