@@ -8,16 +8,12 @@
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
-from tkinter import *
 
 import matplotlib.pyplot as plt
 import mplfinance as mpf
-import pandas as pd
-from API import Get_Candle as gc
-from API import Get_Current_Price as gcp
-from Chart import View_Candle as vc
-from Calcuate_Methods.RSI import rsi
+from main.API import Get_Current_Price as gcp
+from main.Chart import View_Candle as vc
+
 
 class UI(tk.Tk):
     def __init__(self):

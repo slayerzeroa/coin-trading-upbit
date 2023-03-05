@@ -14,3 +14,4 @@ def bollinger_band(df, n):
     B1 = pd.DataFrame(b1)
     df["BollingerBand"] = B1
     return df
+
