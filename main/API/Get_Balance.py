@@ -4,10 +4,16 @@ import os
 import requests
 import uuid
 from urllib.parse import urlencode, unquote
+upbit_path = "C:/Users/slaye/OneDrive/Desktop/upbit_environment/"
+env_list = ['UPBIT_OPEN_API_ACCESS_KEY', 'UPBIT_OPEN_API_SECRET_KEY', 'UPBIT_OPEN_API_SERVER_URL']
 
-access_key = '4j7WiTSarPeKwt9i2qWE3QroxFJN3GzRzjyaxBou'
-secret_key = 'YgZXay3cxn5v0Svj0YIqhEWtY8WUGnKFfnNeHtcb'
-server_url = 'https://api.upbit.com'
+for env in env_list:
+    with open(upbit_path+f'{env}.txt') as keys:
+        os.environ[env] = keys.read().strip()
+
+access_key = os.environ[env_list[0]]
+secret_key = os.environ[env_list[1]]
+server_url = os.environ[env_list[2]]
 
 def get_coin_info(ticker):
     url = f"https://api.upbit.com/v1/ticker?markets={ticker}"
