@@ -23,6 +23,8 @@ from API.Get_Balance import *
 
 from datetime import date
 
+import sqlite3
+
 today = date.today()
 form_class = uic.loadUiType("UI.ui")[0]
 ticker_data = pd.read_csv(f'./Data/230304.csv', encoding='euc-kr')
@@ -40,9 +42,12 @@ class WindowClass(QMainWindow, form_class):
 
         # 버튼 클릭 이벤트
         self.pushButton.clicked.connect(self.show_table)
-        self.pushButton_2.clicked.connect(self.repeat_run)
+        self.pushButton_2.clicked.connect(self.run_algorithm)
         self.pushButton_4.clicked.connect(self.check_account)
+        self.pushButton_3.clicked.connect(self.clear_position)
+        self.checkBox.clicked.connect(self.repeat_run)
 
+    # 표 보여주기
     def show_table(self):
         self.ticker_data = ticker_data
 
@@ -83,27 +88,42 @@ class WindowClass(QMainWindow, form_class):
         algo_list = os.listdir('./Algorithms')
         self.comboBox.addItems(algo_list)
 
-
     def check_account(self):
-        self.label_3.setText("총매수  "+str(get_total_buying()))
-        self.label_4.setText("총평가  "+str(get_total_balance()))
-        self.label_5.setText("평가손익  "+str(get_total_profit()))
-        self.label_6.setText("수익률  "+str(get_rate_of_return()))
+        # clear labels and set text
+        balance = balance_check()
+        self.label_3.setText("총매수  "+ balance[0])
+        self.label_4.setText("총평가  "+ balance[1])
+        self.label_5.setText("평가손익  "+ balance[2])
+        self.label_6.setText("수익률  "+ balance[3])
+
 
     def repeat_run(self):
+        def auto():
+            if abs(float(balance_check()[3][:-1]) * 0.01) > 0.005:
+                self.clear_position()
+                self.run_algorithm()
+            elif float(balance_check()[0]) == 0:
+                self.run_algorithm()
+            else:
+                print('no action')
+                pass
         self.timer = QTimer(self)
-        self.timer.start(50)
-        self.timer.timeout.connect(self.run_algorithm)
+        self.timer.start(1000*60*60)
+        self.timer.timeout.connect(auto)
+
+
 
 
     def run_algorithm(self):
-        self.ticker = self.ticker_list[self.ticker_idx]
-        self.ticker_idx += 1
-        if self.ticker_idx == len(self.ticker_list):
-            self.ticker_idx = 0
         self.algo_name = self.comboBox.currentText()
-        self.algo = importlib.import_module(f'Algorithms.{self.algo_name[:-3]}')
-        self.algo.run(self.ticker)
+        print(self.algo_name)
+        self.algo = importlib.import_module(self.algo_name[:-3])
+        print(self.algo)
+        self.algo.run()
+
+    def clear_position(self):
+        self.clearing = importlib.import_module('Clear')
+        self.clearing.clear()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

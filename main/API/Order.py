@@ -46,14 +46,32 @@ def get_order_information(market_code):
 
 
 # side : bid = 
-def order(market_code, side, volume, price):
-    params = {
-        'market': market_code,
-        'side': side,
-        'volume': volume,
-        'price': price,
-        'ord_type': 'limit',
-    }
+def order(market_code, side, volume, price, ord_type):
+    # 지정가 매수, 매도
+    if ord_type == 'limit':
+        params = {
+            'market': market_code,
+            'side': side,
+            'volume': volume,
+            'price': price,
+            'ord_type': ord_type,
+        }
+    # 시장가 매수
+    elif ord_type == 'price':
+        params = {
+            'market': market_code,
+            'side': side,
+            'price': price,
+            'ord_type': ord_type,
+        }
+    # 시장가 매도
+    elif ord_type == 'market':
+        params = {
+            'market': market_code,
+            'side': side,
+            'volume': volume,
+            'ord_type': ord_type,
+        }
 
     query_string = unquote(urlencode(params, doseq=True)).encode("utf-8")
     m = hashlib.sha512()
