@@ -7,7 +7,6 @@ import datetime
 import schedule
 
 import Get_Ticker
-
 import sqlite3
 
 # 오늘 날짜

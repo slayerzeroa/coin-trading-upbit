@@ -49,20 +49,20 @@ def result_rtzs(tickers: pd.DataFrame):
     tickers = tickers.reset_index(drop=True)
     return tickers
 
-def send():
-    result = result_rtzs(tickers)
-    result['weight'] = (result['weight']/sum(result['weight']))
-
-    balance = get_balance()
-    cash = 0
-    for i in balance:
-        if i['currency'] == 'KRW':
-            cash += float(i['balance'])
-
-    result['invest'] = result['weight'] * cash
-    result['invest'] = result['invest'].apply(lambda x: int(x/100)*100)
-
-    return result[['ticker', 'weight', 'invest']].to_string(index_names=False, index=False)
+# def send():
+#     result = result_rtzs(tickers)
+#     result['weight'] = (result['weight']/sum(result['weight']))
+#
+#     balance = get_balance()
+#     cash = 0
+#     for i in balance:
+#         if i['currency'] == 'KRW':
+#             cash += float(i['balance'])
+#
+#     result['invest'] = result['weight'] * cash
+#     result['invest'] = result['invest'].apply(lambda x: int(x/100)*100)
+#
+#     return result[['ticker', 'weight', 'invest']].to_string(index_names=False, index=False)
 
 # def buy():
 #     result = result_rtzs(tickers)
@@ -105,8 +105,8 @@ def send():
 #     con.close()
 
 
-#실행 파일
 
+#실행 파일
 def run():
     print('get datas')
     start()
@@ -121,8 +121,13 @@ def run():
     cur.execute(f"SELECT * FROM '{today_date}_price_data'")
 
     tickers = pd.DataFrame(cur.fetchall())
+
     tickers.columns = ['ticker', 'close_price_1_days_ago', 'close_price_2_days_ago', 'close_price_3_days_ago']
     print('complete')
+
+    # 불용종목 제거
+    stop_ticker = ['KRW-BTT']
+    tickers = tickers[~tickers['ticker'].isin(stop_ticker)]
 
     result = result_rtzs(tickers)
     result['weight'] = (result['weight']/sum(result['weight']))
@@ -160,9 +165,7 @@ def run():
     transaction.to_sql(f'{today_date}_transaction_details', con, if_exists='append', index=False)
     con.commit()
     con.close()
-
-
-
+    
 #
 # # back_testing 전용
 # def back_test_cal_score(df):

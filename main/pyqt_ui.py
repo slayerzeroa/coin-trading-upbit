@@ -105,13 +105,11 @@ class WindowClass(QMainWindow, form_class):
             elif float(balance_check()[0]) == 0:
                 self.run_algorithm()
             else:
-                print('no action')
+                self.textBrowser.append('No Action...')
                 pass
         self.timer = QTimer(self)
-        self.timer.start(1000*60*60)
+        self.timer.start(1000*60*3)
         self.timer.timeout.connect(auto)
-
-
 
 
     def run_algorithm(self):
@@ -119,6 +117,7 @@ class WindowClass(QMainWindow, form_class):
         print(self.algo_name)
         self.algo = importlib.import_module(self.algo_name[:-3])
         print(self.algo)
+        self.textBrowser.append('Algorithm Running...')
         self.algo.run()
 
     def clear_position(self):
