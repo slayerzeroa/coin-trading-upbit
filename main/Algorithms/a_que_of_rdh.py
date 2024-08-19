@@ -15,14 +15,7 @@ import sqlite3
 
 import time
 
-import asyncio
-
-async def make_table(ticker):
-    row = get_candle(ticker, 'minutes', 5)
-    df = pd.read_json(row, orient='records')
-    return df
-
-async def riding():
+def run():
     # 오늘 날짜
     today_date = datetime.datetime.now().strftime("%Y%m%d")
     print(today_date)
@@ -39,11 +32,12 @@ async def riding():
 
     algorithm_hit = []
     for i in ticker_list:
-        df = await make_table(i)
+        row = get_candle(i, 'minutes', 5)
+        df = pd.read_json(row, orient='records')
         if df.trade_price.pct_change().dropna().mean() > 0.001 and (df.candle_acc_trade_volume.pct_change().dropna() > 0).all():
             algorithm_hit.append(i)
         print(df)
-        await asyncio.sleep(0.1)
+        time.sleep(0.1)
 
     balance = get_balance()
     cash = 0
@@ -57,14 +51,10 @@ async def riding():
             if weight > 5000:
                 order(market_code=i, side='bid', volume=None, price=weight, ord_type='price')
                 time.sleep(0.1)
-
     print(algorithm_hit)
-
-async def run():
-    await riding()
 
 
 if __name__ == '__main__':
-    asyncio.run(run())
+    run()
 
 # print(pd.DataFrame(row))

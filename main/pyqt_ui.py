@@ -9,10 +9,14 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
+from PyQt5.QtCore import QProcess, pyqtSlot
 
 import pandas as pd
 
+from multiprocessing import Process, Queue
 import multiprocessing as mp
+
 import pyupbit
 import importlib
 import time
@@ -24,6 +28,10 @@ from API.Get_Balance import *
 from datetime import date
 
 import sqlite3
+
+import asyncio
+
+
 
 today = date.today()
 form_class = uic.loadUiType("UI.ui")[0]
@@ -118,14 +126,33 @@ class WindowClass(QMainWindow, form_class):
         self.algo = importlib.import_module(self.algo_name[:-3])
         print(self.algo)
         self.textBrowser.append('Algorithm Running...')
-        self.algo.run()
 
+        # 멀티 프로세싱 코드
+        self.algorithm_process = QProcess()
+        self.algorithm_process.readyReadStandardOutput.connect(self.on_algorithm_output)
+        self.algorithm_process.finished.connect(self.on_algorithm_process_finished)
+        self.algorithm_process.start('python', ['./Algorithms/' + self.algo_name])
+
+
+    # 알고리즘 결과 출력
+    def on_algorithm_output(self):
+        data = self.algorithm_process.readAllStandardOutput()
+        output = bytes(data).decode('utf-8')
+        print(output)
+
+    # 포지션 청산
     def clear_position(self):
         self.clearing = importlib.import_module('Clear')
         self.clearing.clear()
 
+    # 알고리즘 종료 후 행동
+    @pyqtSlot()
+    def on_algorithm_process_finished(self):
+        self.textBrowser.append('Algorithm Finished...')
+        self.check_account()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    myWindow = WindowClass( )
-    myWindow.show( )
-    app.exec_( )
+    myWindow = WindowClass()
+    myWindow.show()
+    app.exec_()
